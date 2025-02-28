@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
+  <title>List Harga Buah</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/hmpg.css' %}">
+  <link rel="stylesheet" href="{% static 'css/tabelrn.css' %}">
+</head>
+<body>
+    <div class="navbar">
+        <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+        <a href="{% url 'home' %}"><span>Home</span></a>
+        <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+        <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+        <a href="{% url 'harga_buah' %}"><span>List Harga Buah</span></a>
+      </div>
+  <h1>List Harga Buah</h1>
+  <table border="1" width="50%">
+    <thead>
+      <tr>
+        <th>Nama Buah</th>
+        <th>Harga</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% if buah_data %}
+          {% for key, item in buah_data.items %}
+            <tr>
+              <td>{{ item.nama|default:"(Nama tidak tersedia)" }}</td>
+              <td>{{ item.harga|default:"(Harga tidak tersedia)" }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="2">Data tidak tersedia</td></tr>
+        {% endif %}
+      </tbody>
+  </table>
+  
+  <script>
+    function fetchData() {
+        fetch("{% url 'realtime_data' %}")  // Panggil API Django
+          .then(response => response.json())  
+          .then(data => {
+            let tableBody = document.querySelector("tbody");
+            tableBody.innerHTML = "";  // Kosongkan tabel sebelum update
+    
+            if (Object.keys(data).length === 0) {
+              tableBody.innerHTML = "<tr><td colspan='2'>Data tidak tersedia</td></tr>";
+              return;
+            }
+    
+            Object.values(data).forEach(item => {
+              let row = `<tr>
+                          <td>${item.nama}</td>
+                          <td>${item.harga}</td>
+                        </tr>`;
+              tableBody.innerHTML += row;
+            });
+          })
+          .catch(error => console.error("Gagal mengambil data:", error));
+      }
+    
+      // Jalankan pertama kali dan ulangi tiap 2 detik
+      fetchData();
+      setInterval(fetchData, 2000);
+  </script>
+</body>
+</html>

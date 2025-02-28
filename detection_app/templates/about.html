@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>About Us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}"> 
+</head>
+<body>
+  <div class="navbar">
+    <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+    <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+  </div>
+    <div class="content">
+      <h1>Tentang Kami</h1>
+      <p>Aplikasi Pendeteksi Objek ini dibuat oleh tim pengembang yang bersemangat tentang teknologi visi komputer.</p>
+  
+      <h2>Tujuan Kami</h2>
+      <p>Kami bertujuan untuk menyediakan aplikasi yang mudah digunakan dan gratis yang dapat membantu orang-orang mendeteksi objek dalam gambar dan video.</p>
+  
+      <h2>Teknologi</h2>
+      <p>Aplikasi ini dibangun menggunakan Python dan framework Django, dan menggunakan model YOLO untuk mendeteksi objek.</p>
+  
+      <h2>Tim Kami</h2>
+      <ul>
+        <li>Gilbert(Ketua)</li>
+        <li>Arfalindo(AI Trainer)</li>
+        <li>Yoshe(Web Developer)</li>
+        <li>Nico(Designer)</li>
+        <li>Patrick(All Role 🥶🥶🥶)</li>
+      </ul>
+  
+      <h2>Hubungi Kami</h2>
+    <p>Jika Anda memiliki pertanyaan atau umpan balik, silakan hubungi kami di <a href="https://mail.google.com/mail/?view=cm&fs=1&to=patrickpasyaganteng@gmail.com" target="_blank"><span>patrickpasyaganteng@gmail.com</span></a>.</p>
+  </div>
+</body>
+</html>

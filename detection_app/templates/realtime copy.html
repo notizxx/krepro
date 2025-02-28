@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Real-time Object Detection</title>
+  <style>
+    #camera-feed {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+    <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+  </div>
+  <img id="camera-feed" src="{% url 'video_stream' %}" alt="Real-time Feed" /> 
+  
+  <script>
+    const cameraFeed = document.getElementById('camera-feed');
+
+    const streamUrl = '{% url "video_stream" %}';
+
+    const updateImage = (frameData) => {
+      cameraFeed.src = "data:image/jpeg;base64," + frameData;
+    };
+
+
+    const fetchData = async () => {
+      const response = await fetch(streamUrl);
+      const reader = response.body.getReader();
+
+      return new ReadableStream({
+        start(controller) {
+          function push() {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                controller.close();
+                return;
+              }
+              controller.enqueue(new Uint8Array(value));
+              push();
+            })
+          }
+          push();
+        }
+      });
+    };
+
+    fetchData().then(stream => {
+      return new Response(stream, { headers: { "Content-Type": "text/html" } }).text();
+    }).then(result => {
+      var myRegexp = /<img[^>]+src="([^">]+)"/g;
+      var match = myRegexp.exec(result);
+      if (match != null) {
+        updateImage(match[1].split('base64,')[1]);
+      }
+    });
+  </script>
+</body>
+</html>

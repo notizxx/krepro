@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <title>Real-time Object Detection</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/uploadsty.css' %}">
+  <link rel="stylesheet" href="{% static 'css/tabelrn.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styles-button.css' %}">
+
+  <style>
+    /* Tambahkan sedikit CSS untuk tabel */
+    #results table {
+      width: 50%;
+      border-collapse: collapse;
+    }
+    #results th, #results td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+
+  .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; /* Change to flex-start */
+      height: 100vh;
+      font-family: "Poppins";
+    }
+
+    #captured-image {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 300px;
+      height: auto;
+      border: 1px solid black;
+      z-index: 100;
+      /*opacity: 0;
+      border-radius: 10px; /* Add rounded corners */
+    }
+
+    #results table {
+      width: 80%; /* Adjust width as needed */
+      border-collapse: collapse;
+      margin-bottom: 20px; /* Add space below the table */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+      width: 1200px; /* Set a fixed width */
+      height: 500px; /* Set a fixed height */
+    }
+
+    #results th, #results td {
+      border: 1px solid #ddd; /* Use a lighter border color */
+      padding: 12px; /* Increase padding for better readability */
+      text-align: center;
+      border: 1px solid black; /* Use black for the border color */
+    }
+
+    #results th {
+      background-color: #85C4E7; /* Add a light background to the header */
+    }
+
+    #results tr:nth-child(even) {
+      background-color: #f9f9f9; /* Add alternating row colors */
+    }
+
+    #results tr:hover {
+      background-color: #f0f0f0; /* Highlight rows on hover */
+    }
+
+     .popup {
+            display: none; /* Pastikan popup tersembunyi saat halaman dimuat */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+        }
+        .popup img {
+            max-width: 200px;
+            height: auto;
+        }
+        .popup button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border: none;
+            background: red;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        /* Background overlay */
+        .overlay {
+            display: none; /* Overlay juga tersembunyi saat halaman dimuat */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+    <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+    <a href="{% url 'harga_buah' %}"><span>List Harga Buah</span></a>
+  </div>
+  
+  <div class="content">
+    <h1>Real-time Object Detection</h1>
+
+    <div id="results">
+        <h2>Detected Objects:</h2>          
+        <table>
+            <thead>
+                <tr>
+                    <th>Object</th>
+                    <th>Kuantitas</th>
+                    <th>Harga Per Buah</th>
+                    <th>Harga Total</th>
+                </tr>
+            </thead>
+            <tbody id="object-table"></tbody>
+        </table>
+
+        <!-- Tombol Refresh dan Bayar di bawah tabel -->
+        <div style="margin-top: 20px;">
+            <button id="refresh-button">Refresh List</button>
+            <button id="pay-button" style="background-color: green; color: white;">Bayar</button>
+        </div>
+    </div>
+
+    <!-- Popup QR Code menggunakan <dialog> -->
+      <dialog id="qrDialog">
+        <div class="modal-content">
+            <h2>Scan QR Code untuk Pembayaran</h2>
+            <img src="{% static 'images/qrcode.png' %}" alt="QR Code">
+            <br>
+            <button id="close-popup" class="close-button">Tutup</button>
+        </div>
+    </dialog>
+    
+
+    
+
+</div>
+
+
+    <img id="captured-image" src="" alt="Captured Image">
+ 
+  </div>
+
+  <script>
+    const capturedImage = document.getElementById('captured-image');
+    const objectTable = document.getElementById('object-table');
+    const refreshButton = document.getElementById('refresh-button');
+  
+    let detectedObjects = {}; // Objek untuk menyimpan jumlah benda
+    
+    async function fetchData() {
+      try {
+        const response = await fetch('{% url "video_stream" %}', {
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        });
+        const data = await response.json();
+  
+        if (data.error) {
+          console.error('Error:', data.error);
+        } else {
+          capturedImage.src = `data:image/jpeg;base64,${data.annotated_image}`;
+  
+          if (data.objects && data.objects.length > 0) {
+            data.objects.forEach((object, index) => {
+              const name = object.name;
+              const quantity = object.quantity;
+  
+              // Pastikan harga diambil dan dikonversi dengan benar
+              let price = data.price_descriptions[index] || "0";
+              price = price.replace(/[^\d.]/g, ""); // Hapus karakter selain angka & titik
+              price = parseFloat(price) * 10000 || 0; 
+ // Konversi ke angka
+  
+              if (detectedObjects[name]) {
+                detectedObjects[name].quantity += quantity;
+              } else {
+                detectedObjects[name] = {
+                  quantity: quantity,
+                  price: price,
+                };
+              }
+  
+              // Hitung total harga
+              detectedObjects[name].totalPrice = detectedObjects[name].quantity * detectedObjects[name].price;
+            });
+  
+            updateTable();
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  
+    function updateTable() {
+      objectTable.innerHTML = ''; // Kosongkan tabel sebelum update
+  
+      let overallTotal = 0;
+  
+      Object.keys(detectedObjects).forEach(name => {
+        const row = objectTable.insertRow();
+        const objectCell = row.insertCell();
+        const quantityCell = row.insertCell();
+        const priceCell = row.insertCell();
+        const totalPriceCell = row.insertCell();
+  
+        objectCell.textContent = name;
+        quantityCell.textContent = detectedObjects[name].quantity;
+        priceCell.textContent = `Rp. ${detectedObjects[name].price.toLocaleString()}`;
+        totalPriceCell.textContent = `Rp. ${detectedObjects[name].totalPrice.toLocaleString()}`;
+  
+        overallTotal += detectedObjects[name].totalPrice;
+      });
+  
+      // Tambahkan baris total harga
+      const totalRow = objectTable.insertRow();
+      const totalLabelCell = totalRow.insertCell();
+      const totalValueCell = totalRow.insertCell();
+      totalLabelCell.colSpan = 3;
+      totalLabelCell.textContent = "Total";
+      totalValueCell.textContent = `Rp. ${overallTotal.toLocaleString()}`;
+    }
+  
+    // Jalankan fetchData setiap 3 detik
+    setInterval(fetchData, 1500);
+  
+    // Tambahkan event listener untuk tombol refresh
+    refreshButton.addEventListener("click", () => {
+      detectedObjects = {}; // Reset daftar benda
+      updateTable(); // Perbarui tampilan tabel
+    });
+    
+
+      document.addEventListener("DOMContentLoaded", function() {
+            const payButton = document.getElementById("pay-button");
+            const qrDialog = document.getElementById("qrDialog");
+            const closePopup = document.getElementById("close-popup");
+
+            // Saat tombol "Bayar" diklik, tampilkan popup
+            payButton.addEventListener("click", function() {
+                qrDialog.showModal(); // Menampilkan popup
+            });
+
+            // Saat tombol "Tutup" diklik, sembunyikan popup
+            closePopup.addEventListener("click", function() {
+                qrDialog.close(); // Menutup popup
+            });
+        });
+  
+  </script>
+  
+
+
+</body>
+</html>

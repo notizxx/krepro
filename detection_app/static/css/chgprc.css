@@ -1,0 +1,142 @@
+.navbar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 50px; 
+    height: 100%;
+    background-color: #f0f0f0;
+    padding: 20px;
+    transition: width 0.3s ease; 
+    overflow: hidden; 
+  }
+
+  .navbar:hover {
+    width: 200px; 
+  }
+
+  .navbar .logo {
+    display: block; /* Initially show the logo */
+    margin: 20px auto; 
+    width: 30px; 
+    transition: width 0.3s ease, opacity 0.3s ease;
+    opacity: 1; /* Initially set opacity to 1 */
+  }
+
+  .navbar:hover .logo {
+      width: 0px; 
+      opacity: 0; 
+    }
+    
+
+  .navbar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap; 
+    transition: opacity 0.3s ease; 
+    opacity: 0; 
+    text-align: left;
+    font-family: "Poppins";
+  }
+
+  .navbar:hover a {
+    opacity: 1; 
+  }
+
+  .navbar a span { /* Initially show the text */
+    display: inline;
+    transition: opacity 0.3s ease;
+  }
+
+  .navbar:hover a span {
+    display: inline;
+    opacity: 1; 
+  }
+
+  .navbar a:hover span {  /* Target the span inside the anchor tag */
+    background-color: #afafaf;  /* Example: Light gray background on hover */
+    /* Add any other hover styles you want, like color change */
+  }
+
+  .content {
+    margin-left: 70px; 
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+    font-family: "Poppins";
+  }
+
+  .content button[type="submit"] {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 5px; /* Add rounded corners */
+    transition: background-color 0.3s ease; /* Add a transition effect */
+  }
+  
+  .content button[type="submit"]:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+
+  .navbar:hover + .content {
+    margin-left: 220px; 
+  }
+
+  .navbar a:hover {  /* Target the span inside the anchor tag */
+    background-color: #afafaf;  /* Example: Light gray background on hover */
+    /* Add any other hover styles you want, like color change */
+  }
+
+  #results img { /* Target the image inside the results div */
+    width: 320px;  /* Set a fixed width */
+    height: 240px; /* Set a fixed height */
+    object-fit: contain; /* Maintain aspect ratio and fit within the dimensions */}
+
+.content select {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        padding: 10px;
+        font-size: 16px;
+        width: 200px;
+        border-radius: 5px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
+        font-family: 'Poppins', sans-serif; /* Add Poppins font */
+      }
+
+.price-table {
+        width: 300px; /* Adjust width as needed */
+        border-collapse: collapse; /* Collapse cell borders */
+        margin-top: 20px;
+        position: absolute; /* Position the table absolutely */
+        top: 20px; /* Distance from the top */
+        right: 20px; /* Distance from the right */
+      }
+.price-table th,.price-table td {
+        border: 1px solid #ddd; /* Light gray border */
+        padding: 8px;
+        text-align: left;
+      }
+ .price-table th { /* Style header cells */
+        background-color: #f0f0f0; /* Light gray background */
+        font-weight: bold;
+      }
+.price-table tr:nth-child(even) { /* Alternate row colors */
+        background-color: #f9f9f9;
+      }
+.price-table tr:hover { /* Highlight row on hover */
+        background-color: #f0f0f0;
+      }
+

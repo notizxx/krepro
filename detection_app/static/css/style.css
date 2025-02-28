@@ -1,0 +1,76 @@
+.navbar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 50px; 
+    height: 100%;
+    background-color: #f0f0f0;
+    padding: 20px;
+    transition: width 0.3s ease; 
+    overflow: hidden; 
+  }
+
+  .navbar:hover {
+    width: 200px; 
+  }
+
+  .navbar .logo {
+    display: block; /* Initially show the logo */
+    margin: 20px auto; 
+    width: 30px; 
+    transition: width 0.3s ease, opacity 0.3s ease;
+    opacity: 1; /* Initially set opacity to 1 */
+  }
+
+  .navbar:hover .logo {
+      width: 0px; 
+      opacity: 0; 
+    }
+    
+
+  .navbar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap; 
+    transition: opacity 0.3s ease; 
+    opacity: 0; 
+    text-align: left;
+    font-family: "Poppins";
+  }
+
+  .navbar:hover a {
+    opacity: 1; 
+  }
+
+  .navbar a span { /* Initially show the text */
+    display: inline;
+    transition: opacity 0.3s ease;
+  }
+
+  .navbar:hover a span {
+    display: inline;
+    opacity: 1; 
+  }
+
+  .navbar a:hover span {  /* Target the span inside the anchor tag */
+    background-color: #afafaf;  /* Example: Light gray background on hover */
+    /* Add any other hover styles you want, like color change */
+  }
+
+  .content {
+    margin-left: 70px; 
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+    font-family: "Poppins";
+  }
+
+  .navbar:hover + .content {
+    margin-left: 220px; 
+  }
+
+  #results img { /* Target the image inside the results div */
+    width: 320px;  /* Set a fixed width */
+    height: 240px; /* Set a fixed height */
+    object-fit: contain; /* Maintain aspect ratio and fit within the dimensions */}

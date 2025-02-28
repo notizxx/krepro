@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <title>Login</title>
+    {%load static%}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <div class="navbar">
+        <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+        <a href="{% url 'home' %}"><span>Home</span></a>
+        <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+        <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+      </div>
+    <div class="content">
+    <h2>Login</h2>
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <button type="submit">Login</button>
+    </form><br><br>
+    <div class="hrslgn">
+     <u>
+        You need to be logged in to change the price
+     </u>
+    </div>
+</div>
+</body>
+</html>

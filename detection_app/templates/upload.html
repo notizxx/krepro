@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <title>Real-time Object Detection</title>
+  <title>Upload Image</title>
+  {%load static%} <link rel="stylesheet" href="{% static 'css/uploadsty.css' %}">
+</head>
+<body>
+    <div class="navbar">
+      <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+      <a href="{% url 'home' %}"><span>Home</span></a>
+      <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+      <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+      <a href="{% url 'harga_buah' %}"><span>List Harga Buah</span></a>
+    </div>
+  
+    <div class="content">
+      <h2>Upload Image for Object Detection</h2>
+      <form method="post" enctype="multipart/form-data" action="{% url 'detect_objects' %}" onsubmit="return processImage(event)"> 
+        {% csrf_token %}
+        <div class="file-upload">
+          <input type="file" name="image" id="image-input">
+          <label for="image-input">Choose Image</label>
+        </div>
+        <button type="submit">Detect</button> 
+      </form>
+      <div id="results"></div>
+    </div>
+  
+    <script>
+      const imageInput = document.getElementById('image-input');
+      const resultsDiv = document.getElementById('results');
+  
+      async function processImage(event) {
+        event.preventDefault();
+  
+        const file = imageInput.files[0];
+        if (!file) {
+          alert("Please choose an image first.");
+          return false;
+        }
+  
+        const formData = new FormData();
+        formData.append('image', file);
+  
+        try {
+          const response = await fetch('{% url "detect_objects" %}', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+          });
+  
+          const data = await response.json();
+  
+          // Display the processed image and price descriptions
+          const img = document.createElement('img');
+          img.src = `data:image/jpeg;base64,${data.annotated_image}`;
+          resultsDiv.innerHTML = '';
+          resultsDiv.appendChild(img);
+  
+          // Display price descriptions (if available)
+          if (data.price_descriptions && data.price_descriptions.length > 0) {
+            const priceDescriptionsDiv = document.createElement('div');
+            data.price_descriptions.forEach(description => {
+              const paragraph = document.createElement('p');
+              paragraph.textContent = description;
+              priceDescriptionsDiv.appendChild(paragraph);
+            });
+            resultsDiv.appendChild(priceDescriptionsDiv);
+          }
+  
+        } catch (error) {
+          console.error('Error:', error);
+        }
+  
+        return false;
+      }
+    </script>
+  </body>
+  </html>
+  

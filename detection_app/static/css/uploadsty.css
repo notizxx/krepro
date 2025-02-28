@@ -1,0 +1,138 @@
+.navbar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 50px; 
+    height: 100%;
+    background-color: #f0f0f0;
+    padding: 20px;
+    transition: width 0.3s ease; 
+    overflow: hidden; 
+  }
+
+  .navbar:hover {
+    width: 200px; 
+  }
+
+  .navbar .logo {
+    display: block; /* Initially show the logo */
+    margin: 20px auto; 
+    width: 30px; 
+    transition: width 0.3s ease, opacity 0.3s ease;
+    opacity: 1; /* Initially set opacity to 1 */
+  }
+
+  .navbar:hover .logo {
+      width: 0px; 
+      opacity: 0; 
+    }
+    
+
+  .navbar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap; 
+    transition: opacity 0.3s ease; 
+    opacity: 0; 
+    text-align: left;
+    font-family: "Poppins";
+  }
+
+  .navbar:hover a {
+    opacity: 1; 
+  }
+
+  .navbar a span { /* Initially show the text */
+    display: inline;
+    transition: opacity 0.3s ease;
+  }
+
+  .navbar:hover a span {
+    display: inline;
+    opacity: 1; 
+  }
+
+  .navbar a:hover {
+    background-color: #ddd; /* Example: Light gray background on hover */
+    /* Add any other hover styles you want, like color change */
+  }
+
+  .content {
+    margin-left: 70px; 
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+    text-align: center; /* Center content horizontally */
+    font-family: "Poppins";
+  }
+
+  .navbar:hover + .content {
+    margin-left: 220px; 
+  }
+
+  .file-upload { /* Style the file upload area */
+    margin: 20px 0;
+  }
+
+  .file-upload input[type="file"] {
+    display: none; 
+  }
+
+  .file-upload label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50; 
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .file-upload:hover label {
+    background-color: #45a049; 
+  }
+
+  #results { /* Style the results area */
+    margin-top: 10px;
+  }
+
+  #results img {
+    width: 320px;  /* Set a fixed width */
+    height: 240px; /* Set a fixed height */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+    border-radius: 5px;
+    display: block; /* Make the image a block-level element */
+    margin-left: auto; /* Center the image horizontally */
+    margin-right: auto;
+    
+  }
+
+  .content button[type="submit"] {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 5px; /* Add rounded corners */
+    transition: background-color 0.3s ease; /* Add a transition effect */
+  }
+  
+  .content button[type="submit"]:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+
+  .content select {
+    background-color: #f0f0f0; /* Light gray background */
+    border: 1px solid #ccc; /* Gray border */
+    padding: 10px;
+    font-size: 1%;
+    width: 200px;
+    border-radius: 5px; /* Add rounded corners */
+    appearance: none; /* Remove default appearance */
+    font-family: "Poppins";
+  }

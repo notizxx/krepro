@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YOLOv8 Object Detection</title>
+</head>
+<body>
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'detect_objects' %}">
+        {% csrf_token %}
+        <input type="file" name="image">
+        <button type="submit">Detect</button>
+    </form>
+
+    <div id="results" style="display: flex; align-items: flex-start;"> 
+    </div> 
+
+    <a href="{% url 'detect_realtime' %}">  
+        <button>Use Real-time Camera</button> 
+    </a> <br>
+
+    <script>
+        const form = document.querySelector('form');
+        const resultsDiv = document.getElementById('results');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); 
+
+            const formData = new FormData(form);
+
+            fetch('{% url "detect_objects" %}', { 
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultsDiv.innerHTML = `
+                    <div style="display: flex;">
+                        <img src="${URL.createObjectURL(document.querySelector('input[type="file"]').files[0])}" alt="Original Image" style="margin-right: 20px;">
+                        <img src="data:image/jpeg;base64,${data.processed_image}" alt="Processed Image">
+                    </div>
+                    <p>Detections: ${JSON.stringify(data.detections)}</p> 
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+
+</body>
+</html>

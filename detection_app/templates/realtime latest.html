@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <title>Real-time Object Detection</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/uploadsty.css' %}">
+  <style>
+    /* Tambahkan sedikit CSS untuk tabel */
+    #results table {
+      width: 50%;
+      border-collapse: collapse;
+    }
+    #results th, #results td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+
+  .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; /* Change to flex-start */
+      height: 100vh;
+      font-family: "Poppins";
+    }
+
+    #captured-image {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 300px;
+      height: auto;
+      border: 1px solid black;
+      z-index: 100;
+      border-radius: 10px; /* Add rounded corners */
+    }
+
+    #results table {
+      width: 80%; /* Adjust width as needed */
+      border-collapse: collapse;
+      margin-bottom: 20px; /* Add space below the table */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+      width: 500px; /* Set a fixed width */
+      height: 300px; /* Set a fixed height */
+    }
+
+    #results th, #results td {
+      border: 1px solid #ddd; /* Use a lighter border color */
+      padding: 12px; /* Increase padding for better readability */
+      text-align: center;
+      border: 1px solid black; /* Use black for the border color */
+    }
+
+    #results th {
+      background-color: rgb(20, 71, 0); /* Add a light background to the header */
+    }
+
+    #results tr:nth-child(even) {
+      background-color: #f9f9f9; /* Add alternating row colors */
+    }
+
+    #results tr:hover {
+      background-color: #f0f0f0; /* Highlight rows on hover */
+    }
+
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+    <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+  </div>
+
+  <div class="content">
+    <h1>Real-time Object Detection</h1>
+    <div id="results">
+      <h2>Detected Objects:</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Object</th>
+            <th>Kuantitas</th>
+            <th>Harga Per Buah</th>
+            <th>Harga Total</th>
+          </tr>
+        </thead>
+        <tbody id="object-table"></tbody>
+      </table>
+    </div>
+
+    <img id="captured-image" src="" alt="Captured Image">
+  </div>
+
+
+  <script>
+    const capturedImage = document.getElementById('captured-image');
+    const objectTable = document.getElementById('object-table');
+
+    setInterval(async () => {
+      try {
+        const response = await fetch('{% url "video_stream" %}', {
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        });
+        const data = await response.json();
+
+        if (data.error) {
+          console.error('Error:', data.error);
+          resultsDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+        } else {
+          capturedImage.src = `data:image/jpeg;base64,${data.annotated_image}`;
+
+          // Update the object table
+          objectTable.innerHTML = ''; // Clear previous table
+          if (data.objects && data.objects.length > 0) {
+            data.objects.forEach((object, index) => {
+              const row = objectTable.insertRow();
+              const objectCell = row.insertCell();
+              const quantityCell = row.insertCell();
+              const priceCell = row.insertCell();
+              const totalPriceCell = row.insertCell();
+
+              objectCell.textContent = object.name;
+              quantityCell.textContent = object.quantity;
+              priceCell.textContent = data.price_descriptions[index] || 'Harga tidak tersedia';
+              totalPriceCell.textContent = data.total_prices[index] || '-';
+            });
+
+            // Add the "Total" row
+            const totalRow = objectTable.insertRow();
+            const totalLabelCell = totalRow.insertCell();
+            const totalValueCell = totalRow.insertCell();
+            totalLabelCell.colSpan = 3;
+            totalLabelCell.textContent = "Total";
+            totalValueCell.textContent = `Rp. ${data.overall_total || 0} `; // Add "Rp." to the total value
+          } else {
+            const row = objectTable.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 4;
+            cell.textContent = "No objects detected";
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        resultsDiv.innerHTML = `<p style="color: red;">An error occurred.</p>`;
+      }
+    }, 3000);
+  </script>
+</body>
+</html>

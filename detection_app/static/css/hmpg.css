@@ -1,0 +1,107 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  min-height: 100vh;
+  flex-direction: column; 
+  margin: 0; 
+  width: 100%; /* Add this line to make the body take full width */
+}
+.navbar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 50px; 
+  height: 100%;
+  background-color: #f0f0f0;
+  padding: 20px;
+  transition: width 0.3s ease; 
+  overflow: hidden; 
+}
+
+.navbar:hover {
+  width: 200px; 
+}
+
+.navbar .logo {
+  display: block; /* Initially show the logo */
+  margin: 20px auto; 
+  width: 30px; 
+  transition: width 0.3s ease, opacity 0.3s ease;
+  opacity: 1; /* Initially set opacity to 1 */
+}
+
+.navbar:hover .logo {
+    width: 0px; 
+    opacity: 0; 
+  }
+  
+
+.navbar a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+  white-space: nowrap; 
+  transition: opacity 0.3s ease; 
+  opacity: 0; 
+  text-align: left;
+  font-family: "Poppins";
+}
+
+.navbar:hover a {
+  opacity: 1; 
+}
+
+.navbar a span { /* Initially show the text */
+  display: inline;
+  transition: opacity 0.3s ease;
+}
+
+.navbar:hover a span {
+  display: inline;
+  opacity: 1; 
+}
+
+.navbar a:hover {
+  background-color: #ddd; /* Example: Light gray background on hover */
+  /* Add any other hover styles you want, like color change */
+}
+
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Vertically center within the container */
+    height: 100vh; /* Make container occupy full viewport height */
+    gap: 30px; /* Add space between header and boxes */
+    padding: 20px;
+  }.header {
+    text-align: center;
+  }.content {
+    display: flex;
+    gap: 20px; /* Add space between boxes */
+  }.box-link {
+    display: block; /* Make the entire box a clickable link */
+    text-decoration: none; /* Remove underline from link */
+  }.box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border-radius: 15px;
+    background-color: #e0e0e0;
+    gap: 10px;
+    cursor: pointer; /* Add pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Add smooth transition for background color */
+  }.box:hover {
+    background-color: #c0c0c0; /* Use a darker shade of gray on hover */
+    /* You can adjust the color value to your preference */
+  }.box img {
+    width: 50px;
+    height: auto;
+  }.box span { /* Style the text within the box */
+    color: rgb(0, 0, 0); /* Inherit color from parent (box) */
+  }

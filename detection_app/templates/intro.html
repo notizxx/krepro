@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  {%load static%}
+  <title>Selamat Datang di Aplikasi Pendeteksi Objek</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}"> </head>
+<body>
+  <div class="navbar">
+    <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+    <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+    </div>
+  <div class="content">
+    <h1>Selamat Datang di Aplikasi Pendeteksi Objek</h1>
+    <p>Aplikasi ini menggunakan teknologi YOLO (You Only Look Once) untuk mendeteksi objek dalam gambar atau video. YOLO adalah model pembelajaran mendalam yang dapat mendeteksi objek secara real-time dengan kecepatan dan akurasi tinggi.</p>
+
+    <h2>Cara Kerja</h2>
+    <ol>
+      <li>Unggah gambar atau video Anda.</li>
+      <li>Aplikasi akan memproses gambar atau video Anda menggunakan model YOLO.</li>
+      <li>Aplikasi akan menampilkan objek yang terdeteksi dalam gambar atau video Anda, bersama dengan label dan kotak pembatas.</li>
+    </ol>
+
+    <h2>Navbar</h2>
+    <ul>
+      <li><a href="/">Beranda</a> - Kembali ke halaman beranda.</li>
+      <li><a href="/upload">Unggah</a> - Unggah gambar atau video untuk diproses.</li>
+      <li><a href="/realtime">Real-time</a> - Deteksi objek secara real-time menggunakan webcam Anda.</li>
+      <li><a href="/about">Tentang</a> - Informasi lebih lanjut tentang aplikasi ini.</li>
+    </ul>
+
+    <p>Silakan coba aplikasi ini dan beri tahu kami pendapat Anda!</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real-time Object Detection</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/uploadsty.css' %}">
+</head>
+<body>
+  <div class="navbar">
+    <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+    <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+  </div>
+
+  <div class="content">
+    <h1>Real-time Object Detection</h1>
+    <img id="captured-image" src="" alt="Captured Image">
+
+    <div id="results">
+      <h2>Detected Objects:</h2>
+      <ul id="object-list"></ul>  </div>
+  </div>
+
+  <script>
+    const capturedImage = document.getElementById('captured-image');
+    const resultsDiv = document.getElementById('results');
+    const objectList = document.getElementById('object-list'); // Get the object list element
+
+    setInterval(async () => {
+      try {
+        const response = await fetch('{% url "video_stream" %}', {
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        });
+        const data = await response.json();
+
+        if (data.error) {
+          console.error('Error:', data.error);
+          resultsDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+        } else {
+          capturedImage.src = `data:image/jpeg;base64,${data.annotated_image}`;
+
+          // Update the object list
+          objectList.innerHTML = ''; // Clear previous list
+          if (data.objects && data.objects.length > 0) {
+            data.objects.forEach(object => {
+              const listItem = document.createElement('li');
+              listItem.textContent = object;
+              objectList.appendChild(listItem);
+            });
+          } else {
+            // If no objects are detected, you can display a message
+            const listItem = document.createElement('li');
+            listItem.textContent = "No objects detected";
+            objectList.appendChild(listItem);
+          }
+
+          // Display price descriptions (if available)
+          if (data.price_descriptions && data.price_descriptions.length > 0) {
+            const priceDescriptionsDiv = document.createElement('div');
+            data.price_descriptions.forEach(description => {
+              const paragraph = document.createElement('p');
+              paragraph.textContent = description;
+              priceDescriptionsDiv.appendChild(paragraph);
+            });
+            resultsDiv.innerHTML = ''; // Clear previous descriptions
+            resultsDiv.appendChild(priceDescriptionsDiv);
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        resultsDiv.innerHTML = `<p style="color: red;">An error occurred.</p>`;
+      }
+    }, 3000); // 2000 milliseconds (2 seconds)
+  </script>
+</body>
+</html>

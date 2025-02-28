@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Automatic Detection with Price</title>
+</head>
+<body>
+  <div class="navbar">
+    <img class="logo" src="{% static 'images/menu.png' %}" alt="Logo">
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'upload_image' %}"><span>Test Image</span></a>
+    <a href="{% url 'detect_realtime' %}"><span>Real-time Camera</span></a>
+  </div>
+
+  <div id="results">
+    </div>
+
+  <script>
+    const resultsDiv = document.getElementById('results');
+
+    const streamUrl = '{% url "detect_automatic" %}'; // New URL for automatic detection
+
+    const updateResults = (data) => {
+      resultsDiv.innerHTML = ''; // Clear previous results
+
+      // Display detections
+      const detectionsList = document.createElement('ul');
+      data.detections.forEach(detection => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${detection.class} - Confidence: ${detection.confidence.toFixed(2)}`;
+        detectionsList.appendChild(listItem);
+      });
+      resultsDiv.appendChild(detectionsList);
+
+      // Display total price
+      const priceParagraph = document.createElement('p');
+      priceParagraph.textContent = `Total Price: Rp. ${data.total_price}`;
+      resultsDiv.appendChild(priceParagraph);
+    };
+
+    
+    const fetchData = async () => {
+        const response = await fetch(streamUrl);
+        const reader = response.body.getReader();
+      
+        return new ReadableStream({
+          start(controller) {
+            function push() {
+              reader.read().then(({ done, value }) => {
+                if (done) {
+                  controller.close();
+                  return;
+                }
+                controller.enqueue(new Uint8Array(value));
+                push();
+              })
+            }
+            push();
+          }
+        });
+      };
+    };
+
+    fetchData().then(stream => {
+      return new Response(stream, { headers: { "Content-Type": "application/json" } }).json();
+    }).then(data => {
+      updateResults(data);
+    });
+  </script>
+</body>
+</html>
