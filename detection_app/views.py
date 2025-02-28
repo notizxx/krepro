@@ -17,7 +17,7 @@ from firebase_admin import db
 # model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_48n.pt")
 # model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_100n.onnx")
 # model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_81_32.tflite")
-model = YOLO(r"C:\my_yolov8_app\yolo11_100n.onnx")
+model = YOLO(r"C:\my_yolov8_app\yolo11_107s.onnx")
 
 def harga_buah_view(request):
     return render(request, 'hargarn.html')  # Sesuaikan dengan nama file HTML kamu
