@@ -13,6 +13,8 @@ from collections import Counter
 import firebase_admin
 from firebase_admin import db
 
+# 6969
+
 # Load the YOLOv8 model outside the view function
 # model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_48n.pt")
 # model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_100n.onnx")
