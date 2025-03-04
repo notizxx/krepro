@@ -4,58 +4,54 @@ import cv2
 import base64
 import numpy as np
 from ultralytics import YOLO
+import onnxruntime as ort  # Import ONNX runtime
 import json
 import logging
+import os
+import time
+from collections import Counter
+import firebase_admin
+from firebase_admin import db
+
+# Backup
 
 # Load the YOLOv8 model outside the view function
-model = YOLO(r"D:\my_yolov8_app\yolo11_48n.pt")
+# model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_48n.pt")
+# model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_100n.onnx")
+# model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_81_32.tflite")
+model = YOLO(r"C:\my_yolov8_app\yolo11_107s.onnx")
 
-# Dictionary to store fruit names and their corresponding units
-FRUIT_UNITS = {
-    "Pisang": "kg",
-    "Mangga": "kg",
-    "Jeruk": "kg",
-    "Anggur": "kg",
-    "Apel": "kg",
-    "Semangka": "kg",
-}
+def harga_buah_view(request):
+    return render(request, 'hargarn.html')  # Sesuaikan dengan nama file HTML kamu
 
-# Konfigurasi logging
-logging.basicConfig(filename='change_price.log', level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+def realtime_view(request):
+    return render(request, "realtime.html")  # Render template tanpa data langsung
+
+def get_realtime_data(request):
+    try:
+        ref = db.reference("fruit")
+        data = ref.get() or {}  
+        return JsonResponse(data)  # Kirim sebagai JSON
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 def get_price_description(fruit_name, request):
-    """
-    Returns a price description for a given fruit, fetching the price from the session.
-    """
-    price = request.session.get(fruit_name, {}).get('price')
+    ref = db.reference('fruit')  # Ambil referensi Firebase
+    all_fruits = ref.get()  # Ambil semua data buah
 
-    price_data = {
-        "Pisang": {
-            "unit": "kg"
-        },
-        "Mangga": {
-            "unit": "kg"
-        },
-        #... add more fruits and their unit information...
-        "Jeruk": {
-            "unit": "kg"
-        },
-        "Apel": {
-            "unit": "kg"
-        },
-        "Semangka": {
-            "unit": "kg"
-        },
-        
-    }
+    if all_fruits:
+        for key, fruit in all_fruits.items():
+            if fruit.get('nama') == fruit_name:
+                return fruit['harga']  # Kembalikan harga buah
+    return "Harga tidak tersedia"
 
-    fruit_info = price_data.get(fruit_name)
-    if fruit_info and price is not None:
-        return f"The price of {fruit_name} is Rp. {price} per {fruit_info['unit']}."
-    else:
-        return "Price information not available for " + fruit_name
+def get_item_prices(request):
+    ref = db.reference("fruit")  # Sesuaikan dengan struktur database Firebase
+    items = ref.get()
+    return JsonResponse(items, safe=False)
 
+    
+    
 def combine_detections(detections):
     """
     Menggabungkan deteksi anggur yang berdekatan.
@@ -92,19 +88,23 @@ def combine_detections(detections):
 
     return combined_detections
 
+def realtime_view(request):
+    ref = db.reference("fruit")  # Pastikan path sesuai dengan Firebase
+    data = ref.get() or {}  # Ambil data, jika None ganti dengan {}
+    print("Data dari Firebase:", data)  # Debugging, lihat data di terminal
+    return render(request, "realtime.html", {"buah_data": data})
+
+
 def detect_objects(request):
     if request.method == 'POST':
         if 'image' in request.FILES:
             image_file = request.FILES['image']
             image = cv2.imdecode(np.frombuffer(image_file.read(), np.uint8), cv2.IMREAD_COLOR)
 
-            # Perform object detection
-            results = model(image)  # Get the list of results
-            result = results[0]     # Access the first element (YOLO object)
+            results = model(image)
+            result = results[0]
 
-            annotated_image = result.plot()  # Use the YOLO object to plot
-
-            # Process results (extract labels, bounding boxes, confidence scores)
+            annotated_image = result.plot()
             detections = []
             for r in results:
                 for box in r.boxes:
@@ -117,70 +117,94 @@ def detect_objects(request):
                         'bbox': [int(x1), int(y1), int(x2), int(y2)]
                     })
 
-            # Gabungkan deteksi anggur yang berdekatan
             detections = combine_detections(detections)
 
-            # Draw bounding boxes and labels on the image
-            for detection in detections:
-                x1, y1, x2, y2 = detection['bbox']
-                cv2.rectangle(annotated_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                label = f" {detection['class']} ({detection['confidence']*100:.0f}%)"
-                cv2.putText(annotated_image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-            # Get price descriptions for detected objects
-            price_descriptions = []
-            for detection in detections:
-                fruit_name = detection['class']
-                price_description = get_price_description(fruit_name, request)
-                price_descriptions.append(price_description)
-
-            # Encode the original image
             _, original_img_encoded = cv2.imencode('.jpg', image)
             original_img_base64 = base64.b64encode(original_img_encoded).decode('utf-8')
 
-            # Encode the annotated image
             _, annotated_img_encoded = cv2.imencode('.jpg', annotated_image)
             annotated_img_base64 = base64.b64encode(annotated_img_encoded).decode('utf-8')
 
-            return JsonResponse({'detections': detections,
-                                 'original_image': original_img_base64,
-                                 'annotated_image': annotated_img_base64,
-                                 'price_descriptions': price_descriptions})
+            return JsonResponse({
+                'detections': detections,
+                'original_image': original_img_base64,
+                'annotated_image': annotated_img_base64,
+            })
 
     return JsonResponse({'error': 'No image uploaded'})
 
 import time
 
 
+from django.http import JsonResponse
+
 def video_stream(request):
     cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        return JsonResponse({'error': 'Cannot open camera'})
 
-    def generate_frames():
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
+    ret, frame = cap.read()
+    if not ret:
+        return JsonResponse({'error': 'Cannot read frame from camera'})
 
-            results = model(frame)
+    cap.release()
 
-            # Check if results is a list (no detections)
-            if isinstance(results, list):
-                annotated_frame = frame  # Use the original frame without annotations
-            else:
-                annotated_frame = results.plot()
+    results = model(frame)
 
-            # Encode the annotated frame
-            _, jpeg = cv2.imencode('.jpg', annotated_frame)
-            frame_bytes = jpeg.tobytes()
+    # Extract detected object names
+    object_names =[]
+    if isinstance(results, list):
+        for result in results:
+            annotated_image = result.plot()
+            for r in result.boxes.cls:
+                object_names.append(model.names[int(r)])
+    else:
+        annotated_image = results.plot()
+        for r in results.boxes.cls:
+            object_names.append(model.names[int(r)])
 
-            # Yield the frame with boundary
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n\r\n')
+    # Encode the annotated image
+    _, jpeg = cv2.imencode('.jpg', annotated_image)
+    annotated_image_base64 = base64.b64encode(jpeg).decode('utf-8')
 
-            # Add a 1-second delay
-            time.sleep(1)
+    # Hitung kuantitas objek
+    object_counts = Counter(object_names)
 
-    return StreamingHttpResponse(generate_frames(), content_type='multipart/x-mixed-replace; boundary=frame')
+    # Buat list objek dan kuantitas
+    objects_with_quantity =[]
+    for name, count in object_counts.items():
+        objects_with_quantity.append({'name': name, 'quantity': count})
+
+    # Ambil harga dan hitung harga total
+    price_descriptions =[]
+    total_prices =[]
+    for obj in objects_with_quantity:
+        price = get_price_description(obj['name'], request)
+        if price is not None:
+            price_descriptions.append(f"Rp. {price} per buah.")
+            try:
+                harga = int(price)
+            except ValueError:
+                harga = 0  # Jika tetap error, default ke 0
+            kuantitas = int(obj['quantity'])
+            total_price = harga * kuantitas
+            total_prices.append(total_price)
+        else:
+            price_descriptions.append("Price information not available for " + obj['name'])
+            total_prices.append(None)
+
+    # Calculate the overall total price
+    overall_total = sum(total_price for total_price in total_prices if total_price is not None)
+
+    return JsonResponse({
+        'objects': objects_with_quantity,
+        'annotated_image': annotated_image_base64,
+        'price_descriptions': price_descriptions,
+        'total_prices': total_prices,
+        'overall_total': overall_total
+    })
+
+
 def upload_image(request):
     return render(request, 'upload.html')
 
@@ -190,53 +214,9 @@ def detect_realtime(request):
 def home(request):
     return render(request, 'home.html')
 
-def login(request):
-    error = None
-    if request.method == 'POST':
-        password = request.POST.get('password')
-        if password == "123":  # Ganti dengan password yang diinginkan
-            request.session['password_correct'] = True
-            return redirect('change_price')
-        else:
-            error = 'Incorrect password.'
-    return render(request, 'login.html', {'error': error})
+    # Ambil harga buah dari Firebase
+    price_data = {fruit: ref.child(fruit).get() for fruit in ['Pisang', 'Mangga', 'Apel', 'Anggur', 'Jeruk']}
 
-def change_price(request):
-    message = None
-    error = None
-    password_correct = request.session.get('password_correct', False)
-
-    logging.debug(f"Entering change_price view. password_correct: {password_correct}")
-    logging.debug(f"Session data: {request.session.items()}")
-
-    if not password_correct:
-        return redirect('login')  # Redirect ke halaman login jika belum login
-
-    if request.method == 'POST':
-        fruit = request.POST.get('fruit')
-        price = request.POST.get('price')
-        logging.debug(f"Received fruit: {fruit}, price: {price}")
-
-        if fruit and price:
-            try:
-                price = int(price)
-                old_price = request.session.get(fruit, {}).get('price')
-                logging.debug(f"Old price for {fruit}: {old_price}")
-
-                request.session[fruit] = {'price': price}
-                message = 'Price updated successfully!'
-                logging.debug(f"Price updated for {fruit}: {price}")
-                logging.debug(f"Session data after update: {request.session.items()}")
-            except ValueError:
-                error = 'Invalid price value.'
-                logging.error("Invalid price value provided.")
-
-    price_data = {
-        fruit: request.session.get(fruit, {}).get('price')
-        for fruit in ['Pisang', 'Mangga', 'Apel', 'Semangka', 'Anggur', 'Jeruk']
-    }
-
-    logging.debug(f"Exiting change_price view. message: {message}, error: {error}")
     return render(request, 'change_price.html', {
         'message': message,
         'error': error,
@@ -255,3 +235,42 @@ def about(request):
 
 def intro(request):
     return render(request, 'intro.html')
+
+
+def detect_realtime(request):
+    if request.method == 'POST':
+        image_data = request.POST.get('image_data')
+        if image_data:
+            # Decode the base64 image data
+            header, encoded = image_data.split(",", 1)
+            image_bytes = base64.b64decode(encoded)
+            nparr = np.frombuffer(image_bytes, np.uint8)
+            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+            # Perform object detection
+            results = model(image)
+            detections =[]
+            for r in results:
+                for box in r.boxes:
+                    x1, y1, x2, y2 = box.xyxy
+                    conf = box.conf
+                    cls = int(box.cls)
+                    detections.append({
+                        'class': model.names[cls],
+                        'confidence': float(conf),
+                        'bbox': [int(x1), int(y1), int(x2), int(y2)]
+                    })
+
+            # Gabungkan deteksi anggur yang berdekatan
+            detections = combine_detections(detections)
+
+            # Return detections as text
+            detection_text = ""
+            for detection in detections:
+                label = f"Detected: {detection['class']} ({detection['confidence']*100:.0f}%)"
+                detection_text += label + "<br>"  # Add a line break after each detection
+
+            return JsonResponse({'detections': detection_text})
+
+    return render(request, 'realtime.html')
+    

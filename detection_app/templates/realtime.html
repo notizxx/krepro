@@ -151,43 +151,25 @@ dialog button {
     async function fetchData() {
       try {
         const response = await fetch('{% url "video_stream" %}', {
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-          }
+          headers: { 'X-CSRFToken': '{{ csrf_token }}' }
         });
         const data = await response.json();
-  
-        if (data.error) {
-          console.error('Error:', data.error);
-        } else {
-          capturedImage.src = `data:image/jpeg;base64,${data.annotated_image}`;
-  
-          if (data.objects && data.objects.length > 0) {
-            data.objects.forEach((object, index) => {
-              const name = object.name;
-              const quantity = object.quantity;
-  
-              // Pastikan harga diambil dan dikonversi dengan benar
-              let price = data.price_descriptions[index] || "0";
-              price = price.replace(/[^\d.]/g, ""); // Hapus karakter selain angka & titik
-              price = parseFloat(price) * 10000 || 0; 
- // Konversi ke angka
-  
-              if (detectedObjects[name]) {
-                detectedObjects[name].quantity += quantity;
-              } else {
-                detectedObjects[name] = {
-                  quantity: quantity,
-                  price: price,
-                };
-              }
-  
-              // Hitung total harga
-              detectedObjects[name].totalPrice = detectedObjects[name].quantity * detectedObjects[name].price;
-            });
-  
-            updateTable();
-          }
+    
+        if (data.objects && data.objects.length > 0) {
+          data.objects.forEach(object => {
+            const name = object.name;
+            const quantity = object.quantity;
+    
+            if (detectedObjects[name]) {
+              detectedObjects[name].quantity += quantity;
+            } else {
+              detectedObjects[name] = { quantity: quantity, price: 10000 };
+            }
+    
+            detectedObjects[name].totalPrice = detectedObjects[name].quantity * detectedObjects[name].price;
+          });
+    
+          updateTable();
         }
       } catch (error) {
         console.error('Error:', error);
@@ -224,7 +206,7 @@ dialog button {
     }
   
     // Jalankan fetchData setiap 3 detik
-    setInterval(fetchData, 1500);
+    setInterval(fetchData, 2000); // Panggil API setiap 2 detik
   
     // Tambahkan event listener untuk tombol refresh
     refreshButton.addEventListener("click", () => {

@@ -12,8 +12,7 @@ import time
 from collections import Counter
 import firebase_admin
 from firebase_admin import db
-
-# 6969
+from datetime import datetime
 
 # Load the YOLOv8 model outside the view function
 # model = YOLO(r"/home/raspi/Downloads/my_yolov8_app/yolo11_48n.pt")
@@ -26,6 +25,27 @@ def harga_buah_view(request):
 
 def realtime_view(request):
     return render(request, "realtime.html")  # Render template tanpa data langsung
+
+def capture_image(request):
+    try:
+        # Inisialisasi kamera
+        cap = cv2.VideoCapture(0)
+        ret, frame = cap.read()
+        
+        if not ret:
+            return JsonResponse({"error": "Gagal menangkap gambar"}, status=500)
+
+        # Simpan gambar dengan timestamp
+        filename = f"captured_images/object_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+        cv2.imwrite(filename, frame)
+        
+        cap.release()
+
+        return JsonResponse({"message": "Gambar berhasil diambil", "filename": filename})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
 
 def get_realtime_data(request):
     try:
