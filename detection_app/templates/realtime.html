@@ -11,103 +11,80 @@
   <link rel="stylesheet" href="{% static 'css/styles-button.css' %}">
 
   <style>
-    /* Tambahkan sedikit CSS untuk tabel */
-    #results table {
-      width: 50%;
-      border-collapse: collapse;
-    }
-    #results th, #results td {
-      border: 1px solid black;
-      padding: 8px;
-      text-align: left;
-    }
+    /* Styling untuk tampilan layar kecil (7 inch) */
+body {
+    font-size: 2vh; /* Menyesuaikan ukuran font dengan tinggi layar */
+}
 
-  .content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start; /* Change to flex-start */
-      height: 100vh;
-      font-family: "Poppins";
-    }
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    font-family: "Poppins";
+}
 
-    #captured-image {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      width: 300px;
-      height: auto;
-      border: 1px solid black;
-      z-index: 100;
-      /*opacity: 0;
-      border-radius: 10px; /* Add rounded corners */
-    }
+#results table {
+    width: 90vw; /* Menyesuaikan tabel agar tidak terlalu besar */
+    max-width: 1000px;
+    border-collapse: collapse;
+    margin-bottom: 2vh;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-    #results table {
-      width: 80%; /* Adjust width as needed */
-      border-collapse: collapse;
-      margin-bottom: 20px; /* Add space below the table */
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-      width: 1200px; /* Set a fixed width */
-      height: 500px; /* Set a fixed height */
-    }
+#results th, #results td {
+    border: 1px solid #ddd;
+    padding: 2vh; /* Padding proporsional */
+    text-align: center;
+}
 
-    #results th, #results td {
-      border: 1px solid #ddd; /* Use a lighter border color */
-      padding: 12px; /* Increase padding for better readability */
-      text-align: center;
-      border: 1px solid black; /* Use black for the border color */
-    }
+#results th {
+    background-color: #85C4E7;
+    font-size: 2.5vh;
+}
 
-    #results th {
-      background-color: #85C4E7; /* Add a light background to the header */
-    }
+#results tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
 
-    #results tr:nth-child(even) {
-      background-color: #f9f9f9; /* Add alternating row colors */
-    }
+#results tr:hover {
+    background-color: #f0f0f0;
+}
 
-    #results tr:hover {
-      background-color: #f0f0f0; /* Highlight rows on hover */
-    }
+/* Styling tombol */
+button {
+    font-size: 2vh;
+    padding: 1vh 2vw;
+    margin: 1vh;
+    border: none;
+    cursor: pointer;
+    border-radius: 1vh;
+}
 
-     .popup {
-            display: none; /* Pastikan popup tersembunyi saat halaman dimuat */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            z-index: 1000;
-        }
-        .popup img {
-            max-width: 200px;
-            height: auto;
-        }
-        .popup button {
-            margin-top: 10px;
-            padding: 5px 10px;
-            border: none;
-            background: red;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        /* Background overlay */
-        .overlay {
-            display: none; /* Overlay juga tersembunyi saat halaman dimuat */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
+#pay-button {
+    background-color: green;
+    color: white;
+}
+
+/* Styling popup QR Code */
+dialog {
+    width: 80vw;
+    max-width: 400px;
+    padding: 2vh;
+    border-radius: 1vh;
+    text-align: center;
+}
+
+dialog img {
+    max-width: 50vw;
+    height: auto;
+}
+
+dialog button {
+    margin-top: 2vh;
+}
+
 
   </style>
 </head>

@@ -1,19 +1,22 @@
 .button-container {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 2%; /* Menggunakan persen untuk menjaga jarak yang seimbang */
+    margin-top: 2%;
 }
 
 #refresh-button, #pay-button {
-    padding: 10px 15px;
-    font-size: 16px;
-    font-weight: bold;  /* Membuat teks menjadi bold */
-    color: black !important; /* Paksa warna teks menjadi hitam */
+    padding: 2% 4%; /* Ukuran padding fleksibel sesuai layar */
+    font-size: 1.5vw; /* Gunakan vw agar menyesuaikan dengan lebar layar */
+    font-weight: bold;
+    color: black !important;
     cursor: pointer;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     transition: background-color 0.3s;
+    width: 20%; /* Sesuaikan lebar tombol */
+    max-width: 150px; /* Maksimum lebar agar tidak terlalu besar */
+    min-width: 100px; /* Minimum lebar agar tetap terlihat */
 }
 
 #refresh-button {
@@ -32,7 +35,6 @@
     background-color: #218838;
 }
 
-
 /* Modal Popup */
 .modal {
     display: none;
@@ -50,36 +52,38 @@
 
 .modal-content {
     background-color: white;
-    padding: 20px;
+    padding: 3%;
     border-radius: 10px;
     text-align: center;
     position: relative;
-    font-weight: bold; /* Membuat teks dalam modal menjadi bold */
-    color: black; /* Warna teks hitam */
+    font-weight: bold;
+    color: black;
+    width: 40%; /* Responsif terhadap ukuran layar */
+    max-width: 400px;
 }
 
 .modal-content img {
-    width: 200px;
-    height: 200px;
+    width: 60%; /* Sesuaikan ukuran QR Code */
+    height: auto;
 }
 
 .close-button {
-    background-color: #dc3545; /* Warna merah */
+    background-color: #dc3545;
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 2% 4%;
+    font-size: 1.5vw;
     cursor: pointer;
     border-radius: 5px;
-    margin-top: 15px; /* Menambah jarak dari QR Code */
-    display: block; /* Memastikan tombol berada di bawah */
+    margin-top: 2%;
+    display: block;
     margin-left: auto;
     margin-right: auto;
     transition: background-color 0.3s ease;
+    width: 50%;
+    max-width: 120px;
 }
 
 .close-button:hover {
     background-color: #c82333;
 }
-
-
